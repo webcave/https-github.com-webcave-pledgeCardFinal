@@ -42,7 +42,10 @@ const CampaignCard = ({
   );
 
   return (
-    <Card className="w-full max-w-[380px] overflow-hidden bg-white hover:shadow-lg transition-shadow duration-300">
+    <Card
+      className="w-full max-w-[380px] overflow-hidden bg-white hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+      onClick={() => (window.location.href = `/campaign/${id}`)}
+    >
       <div className="relative h-48 overflow-hidden">
         <img
           src={imageUrl}
@@ -54,6 +57,9 @@ const CampaignCard = ({
             variant="ghost"
             size="icon"
             className="h-8 w-8 text-gray-700 hover:text-red-500"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
           >
             <Heart className="h-5 w-5" />
           </Button>
@@ -80,10 +86,10 @@ const CampaignCard = ({
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span className="font-medium">
-              ${currentAmount.toLocaleString()}
+              UGX {currentAmount.toLocaleString()}
             </span>
             <span className="text-muted-foreground">
-              of ${goalAmount.toLocaleString()}
+              of UGX {goalAmount.toLocaleString()}
             </span>
           </div>
           <Progress value={progressPercentage} className="h-2" />

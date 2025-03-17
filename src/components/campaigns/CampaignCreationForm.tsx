@@ -69,14 +69,16 @@ type FormValues = z.infer<typeof formSchema>;
 
 interface CampaignCreationFormProps {
   initialData?: Partial<FormValues>;
-  onSubmit?: (data: FormValues) => void;
+  onSubmit?: (data: FormValues, mediaFiles: File[]) => void;
   isEditing?: boolean;
+  isSubmitting?: boolean;
 }
 
 const CampaignCreationForm = ({
   initialData = {},
   onSubmit = () => {},
   isEditing = false,
+  isSubmitting = false,
 }: CampaignCreationFormProps) => {
   const [step, setStep] = useState(1);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
@@ -122,8 +124,8 @@ const CampaignCreationForm = ({
   };
 
   const handleSubmit = (data: FormValues) => {
-    // In a real implementation, we would also handle the media files here
-    onSubmit(data);
+    // Pass both the form data and media files to the parent component
+    onSubmit(data, mediaFiles);
   };
 
   const handlePreview = () => {
@@ -544,9 +546,18 @@ const CampaignCreationForm = ({
                   Next <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
               ) : (
-                <Button type="submit">
-                  <Save className="mr-2 h-4 w-4" />
-                  {isEditing ? "Update Campaign" : "Create Campaign"}
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+                      {isEditing ? "Updating..." : "Creating..."}
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      {isEditing ? "Update Campaign" : "Create Campaign"}
+                    </>
+                  )}
                 </Button>
               )}
             </div>

@@ -9,7 +9,92 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      campaign_media: {
+        Row: {
+          campaign_id: string | null
+          caption: string | null
+          created_at: string | null
+          id: string
+          type: string
+          url: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          caption?: string | null
+          created_at?: string | null
+          id?: string
+          type: string
+          url: string
+        }
+        Update: {
+          campaign_id?: string | null
+          caption?: string | null
+          created_at?: string | null
+          id?: string
+          type?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_media_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          category: string
+          created_at: string | null
+          current_amount: number
+          end_date: string
+          id: string
+          is_public: boolean
+          organizer_bio: string | null
+          organizer_name: string
+          short_description: string
+          story: string
+          target_amount: number
+          title: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          current_amount?: number
+          end_date: string
+          id?: string
+          is_public?: boolean
+          organizer_bio?: string | null
+          organizer_name: string
+          short_description: string
+          story: string
+          target_amount: number
+          title: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          current_amount?: number
+          end_date?: string
+          id?: string
+          is_public?: boolean
+          organizer_bio?: string | null
+          organizer_name?: string
+          short_description?: string
+          story?: string
+          target_amount?: number
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

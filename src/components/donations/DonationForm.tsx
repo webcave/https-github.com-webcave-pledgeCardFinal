@@ -35,10 +35,11 @@ const formSchema = z.object({
   amount: z.string().min(1, { message: "Amount is required" }),
   name: z.string().min(2, { message: "Name is required" }),
   email: z.string().email({ message: "Valid email is required" }),
-  paymentMethod: z.enum(["creditCard", "paypal", "bankTransfer"]),
+  paymentMethod: z.enum(["mtnMoney", "airtelMoney", "creditCard"]),
   cardNumber: z.string().optional(),
   expiryDate: z.string().optional(),
   cvv: z.string().optional(),
+  phoneNumber: z.string().optional(),
   anonymous: z.boolean().default(false),
   message: z.string().optional(),
 });
@@ -63,9 +64,10 @@ const DonationForm = ({
       amount: "",
       name: "",
       email: "",
-      paymentMethod: "creditCard",
+      paymentMethod: "mtnMoney",
       anonymous: false,
       message: "",
+      phoneNumber: "",
     },
   });
 
@@ -85,7 +87,7 @@ const DonationForm = ({
     }
   };
 
-  const predefinedAmounts = ["10", "25", "50", "100"];
+  const predefinedAmounts = ["10000", "25000", "50000", "100000"];
 
   return (
     <Card className="w-full max-w-md mx-auto bg-white">
@@ -115,9 +117,9 @@ const DonationForm = ({
                       setSelectedAmount(amount);
                       form.setValue("amount", amount);
                     }}
-                    className="h-12"
+                    className="h-12 text-xs sm:text-sm"
                   >
-                    ${amount}
+                    UGX {parseInt(amount).toLocaleString()}
                   </Button>
                 ))}
               </div>
@@ -127,7 +129,7 @@ const DonationForm = ({
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Custom Amount</FormLabel>
+                    <FormLabel>Custom Amount (UGX)</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -231,35 +233,35 @@ const DonationForm = ({
                         className="flex flex-col space-y-1"
                       >
                         <div className="flex items-center space-x-2 rounded-md border p-3">
+                          <RadioGroupItem value="mtnMoney" id="mtnMoney" />
+                          <FormLabel
+                            htmlFor="mtnMoney"
+                            className="font-normal cursor-pointer flex-1"
+                          >
+                            MTN Mobile Money
+                          </FormLabel>
+                        </div>
+                        <div className="flex items-center space-x-2 rounded-md border p-3">
+                          <RadioGroupItem
+                            value="airtelMoney"
+                            id="airtelMoney"
+                          />
+                          <FormLabel
+                            htmlFor="airtelMoney"
+                            className="font-normal cursor-pointer flex-1"
+                          >
+                            Airtel Money
+                          </FormLabel>
+                        </div>
+                        <div className="flex items-center space-x-2 rounded-md border p-3">
                           <RadioGroupItem value="creditCard" id="creditCard" />
                           <FormLabel
                             htmlFor="creditCard"
                             className="font-normal cursor-pointer flex-1"
                           >
-                            Credit Card
+                            Visa Card
                           </FormLabel>
                           <CreditCard className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                        <div className="flex items-center space-x-2 rounded-md border p-3">
-                          <RadioGroupItem value="paypal" id="paypal" />
-                          <FormLabel
-                            htmlFor="paypal"
-                            className="font-normal cursor-pointer flex-1"
-                          >
-                            PayPal
-                          </FormLabel>
-                        </div>
-                        <div className="flex items-center space-x-2 rounded-md border p-3">
-                          <RadioGroupItem
-                            value="bankTransfer"
-                            id="bankTransfer"
-                          />
-                          <FormLabel
-                            htmlFor="bankTransfer"
-                            className="font-normal cursor-pointer flex-1"
-                          >
-                            Bank Transfer
-                          </FormLabel>
                         </div>
                       </RadioGroup>
                     </FormControl>
@@ -267,6 +269,18 @@ const DonationForm = ({
                   </FormItem>
                 )}
               />
+
+              {(paymentMethod === "mtnMoney" ||
+                paymentMethod === "airtelMoney") && (
+                <div className="space-y-4">
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="07XXXXXXXX" />
+                    </FormControl>
+                  </FormItem>
+                </div>
+              )}
 
               {paymentMethod === "creditCard" && (
                 <div className="space-y-4">

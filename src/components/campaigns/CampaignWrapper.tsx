@@ -5,6 +5,31 @@ import Navbar from "../layout/Navbar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import DonationForm from "../donations/DonationForm";
 import PledgeForm from "../pledges/PledgeForm";
+import { getCampaignById } from "@/lib/api/campaigns";
+import { getPublicUrl } from "@/lib/api/storage";
+import { format } from "date-fns";
+import { differenceInDays } from "date-fns";
+
+interface CampaignData {
+  id: string;
+  title: string;
+  image: string;
+  currentAmount: number;
+  goalAmount: number;
+  daysLeft: number;
+  backerCount: number;
+  category: string;
+  organizerName: string;
+  organizerAvatar: string;
+  organizerLocation: string;
+  campaignCreatedDate: string;
+  story: string;
+  media: Array<{
+    type: "image" | "video";
+    url: string;
+    caption?: string;
+  }>;
+}
 
 const CampaignWrapper = () => {
   const { id } = useParams<{ id: string }>();
@@ -12,7 +37,7 @@ const CampaignWrapper = () => {
   const navigate = useNavigate();
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false);
   const [isPledgeModalOpen, setIsPledgeModalOpen] = useState(false);
-  const [campaign, setCampaign] = useState(null);
+  const [campaign, setCampaign] = useState<CampaignData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Check if we should open the pledge modal from URL params
@@ -30,48 +55,67 @@ const CampaignWrapper = () => {
     }
   }, [location, id, navigate]);
 
-  // Fetch campaign data
+  // Fetch campaign data from the database
   useEffect(() => {
-    // In a real app, this would fetch from an API
-    // For now, we'll simulate loading and then use mock data
-    setIsLoading(true);
-    setTimeout(() => {
-      // Mock campaign data based on the ID
-      const mockCampaign = {
-        id: id,
-        title: "Help Fund Our Community Garden Project",
-        image:
-          "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?w=1200&q=80",
-        currentAmount: 8750,
-        goalAmount: 15000,
-        daysLeft: 21,
-        backerCount: 143,
-        category: "Community",
-        organizerName: "Sarah Johnson",
-        organizerAvatar:
-          "https://api.dicebear.com/7.x/avataaars/svg?seed=sarah",
-        organizerLocation: "Portland, OR",
-        campaignCreatedDate: "March 15, 2023",
-        story:
-          "<p>This campaign was started to help fund a new community garden in our neighborhood. The garden will provide fresh produce for local families and serve as an educational space for children to learn about sustainable agriculture.</p><p>We need your support to purchase gardening tools, seeds, soil, and irrigation equipment. We also plan to build accessible pathways and seating areas so everyone in the community can enjoy the space.</p><p>With your help, we can transform an empty lot into a thriving green space that brings people together and improves our local environment. Every donation, no matter how small, brings us closer to our goal!</p><p>Thank you for your support and for being part of our community garden journey!</p>",
-        media: [
-          {
-            type: "image",
-            url: "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=800&q=80",
-            caption:
-              "The empty lot we plan to transform into a community garden",
-          },
-          {
-            type: "image",
-            url: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&q=80",
-            caption:
-              "Example of what our garden could look like when completed",
-          },
-        ],
-      };
-      setCampaign(mockCampaign);
-      setIsLoading(false);
-    }, 1000);
+    if (!id) return;
+
+    const fetchCampaign = async () => {
+      setIsLoading(true);
+
+      try {
+        const { data, error } = await getCampaignById(id);
+
+        if (error || !data) {
+          throw new Error(error?.message || "Campaign not found");
+        }
+
+        // Calculate days left
+        const endDate = new Date(data.end_date);
+        const today = new Date();
+        const daysLeft = Math.max(0, differenceInDays(endDate, today));
+
+        // Format the campaign data
+        const formattedCampaign: CampaignData = {
+          id: data.id,
+          title: data.title,
+          image:
+            data.media && data.media.length > 0 && data.media[0].file_path
+              ? getPublicUrl(data.media[0].file_path)
+              : "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?w=1200&q=80",
+          currentAmount: data.current_amount,
+          goalAmount: data.target_amount,
+          daysLeft: daysLeft,
+          backerCount: data.backer_count,
+          category: data.category,
+          organizerName: data.organizer_name,
+          organizerAvatar:
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=" +
+            data.organizer_name.replace(/\s+/g, "").toLowerCase(),
+          organizerLocation: "Kampala, UG", // Default location
+          campaignCreatedDate: format(
+            new Date(data.created_at),
+            "MMMM d, yyyy",
+          ),
+          story: data.story,
+          media: data.media
+            ? data.media.map((item) => ({
+                type: item.file_type as "image" | "video",
+                url: getPublicUrl(item.file_path),
+                caption: item.caption || undefined,
+              }))
+            : [],
+        };
+
+        setCampaign(formattedCampaign);
+      } catch (err) {
+        console.error("Error fetching campaign:", err);
+        setCampaign(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCampaign();
   }, [id]);
 
   const handleDonateClick = () => {

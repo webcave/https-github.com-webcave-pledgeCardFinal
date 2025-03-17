@@ -1,5 +1,5 @@
 import { Suspense, lazy } from "react";
-import { useRoutes, Routes, Route } from "react-router-dom";
+import { useRoutes, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./components/home";
 import routes from "tempo-routes";
 
@@ -14,6 +14,9 @@ const CampaignWrapper = lazy(
 const CampaignCreationWrapper = lazy(
   () => import("./components/campaigns/CampaignCreationWrapper"),
 );
+const CampaignEditWrapper = lazy(
+  () => import("./components/campaigns/CampaignEditWrapper"),
+);
 const UserDashboard = lazy(
   () => import("./components/dashboard/UserDashboard"),
 );
@@ -21,6 +24,11 @@ const LoginPage = lazy(() => import("./components/auth/LoginPage"));
 const SignupPage = lazy(() => import("./components/auth/SignupPage"));
 
 function App() {
+  // Tempo routes
+  {
+    import.meta.env.VITE_TEMPO === "true" && useRoutes(routes);
+  }
+
   return (
     <Suspense
       fallback={
@@ -34,6 +42,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/campaigns" element={<CampaignsPage />} />
           <Route path="/campaigns/:id" element={<CampaignWrapper />} />
+          <Route path="/campaigns/:id/edit" element={<CampaignEditWrapper />} />
           <Route
             path="/campaigns/create"
             element={<CampaignCreationWrapper />}

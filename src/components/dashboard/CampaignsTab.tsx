@@ -1,4 +1,13 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  getUserCampaigns,
+  deleteCampaign,
+  updateCampaign,
+} from "@/lib/api/campaigns";
+import { getPublicUrl } from "@/lib/api/storage";
+import { supabase } from "@/lib/supabase";
+import { toast } from "@/components/ui/use-toast";
 import {
   Card,
   CardContent,
@@ -42,7 +51,63 @@ interface CampaignsTabProps {
   campaigns?: Campaign[];
 }
 
-const CampaignsTab = ({ campaigns = defaultCampaigns }: CampaignsTabProps) => {
+const CampaignsTab = ({ campaigns = [] }: CampaignsTabProps) => {
+  const [userCampaigns, setUserCampaigns] = useState<Campaign[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchUserCampaigns = async () => {
+      if (!user) return;
+
+      setIsLoading(true);
+      try {
+        const { data, error } = await getUserCampaigns(user.id);
+
+        if (error) throw error;
+
+        if (data) {
+          // Transform the data to match our component's expected format
+          const formattedCampaigns = await Promise.all(
+            data.map(async (campaign) => {
+              // Get the cover image for this campaign
+              const { data: mediaData } = await supabase
+                .from("campaign_media")
+                .select("*")
+                .eq("campaign_id", campaign.id)
+                .eq("is_cover", true)
+                .single();
+
+              return {
+                id: campaign.id,
+                title: campaign.title,
+                description: campaign.short_description,
+                goalAmount: campaign.target_amount,
+                currentAmount: campaign.current_amount,
+                status: campaign.status,
+                createdAt: campaign.created_at,
+                imageUrl: mediaData
+                  ? getPublicUrl(mediaData.file_path)
+                  : "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&q=80",
+                backers: campaign.backer_count,
+              };
+            }),
+          );
+
+          setUserCampaigns(formattedCampaigns);
+        }
+      } catch (err) {
+        console.error("Error fetching user campaigns:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserCampaigns();
+  }, [user]);
+
+  // Use the fetched campaigns instead of the prop
+  const displayCampaigns = userCampaigns.length > 0 ? userCampaigns : campaigns;
   return (
     <div className="w-full bg-white p-6 rounded-lg">
       <div className="flex justify-between items-center mb-6">
@@ -60,27 +125,72 @@ const CampaignsTab = ({ campaigns = defaultCampaigns }: CampaignsTabProps) => {
         </TabsList>
 
         <TabsContent value="active" className="space-y-4">
-          {campaigns
-            .filter((campaign) => campaign.status === "active")
-            .map((campaign) => (
-              <CampaignCard key={campaign.id} campaign={campaign} />
-            ))}
+          {isLoading ? (
+            <div className="flex justify-center py-10">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            displayCampaigns
+              .filter((campaign) => campaign.status === "active")
+              .map((campaign) => (
+                <CampaignCard key={campaign.id} campaign={campaign} />
+              ))
+          )}
+          {!isLoading &&
+            displayCampaigns.filter((c) => c.status === "active").length ===
+              0 && (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">
+                  No active campaigns found
+                </p>
+              </div>
+            )}
         </TabsContent>
 
         <TabsContent value="completed" className="space-y-4">
-          {campaigns
-            .filter((campaign) => campaign.status === "completed")
-            .map((campaign) => (
-              <CampaignCard key={campaign.id} campaign={campaign} />
-            ))}
+          {isLoading ? (
+            <div className="flex justify-center py-10">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            displayCampaigns
+              .filter((campaign) => campaign.status === "completed")
+              .map((campaign) => (
+                <CampaignCard key={campaign.id} campaign={campaign} />
+              ))
+          )}
+          {!isLoading &&
+            displayCampaigns.filter((c) => c.status === "completed").length ===
+              0 && (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">
+                  No completed campaigns found
+                </p>
+              </div>
+            )}
         </TabsContent>
 
         <TabsContent value="draft" className="space-y-4">
-          {campaigns
-            .filter((campaign) => campaign.status === "draft")
-            .map((campaign) => (
-              <CampaignCard key={campaign.id} campaign={campaign} />
-            ))}
+          {isLoading ? (
+            <div className="flex justify-center py-10">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            displayCampaigns
+              .filter((campaign) => campaign.status === "draft")
+              .map((campaign) => (
+                <CampaignCard key={campaign.id} campaign={campaign} />
+              ))
+          )}
+          {!isLoading &&
+            displayCampaigns.filter((c) => c.status === "draft").length ===
+              0 && (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">
+                  No draft campaigns found
+                </p>
+              </div>
+            )}
         </TabsContent>
       </Tabs>
     </div>
@@ -170,17 +280,68 @@ const CampaignCard = ({ campaign }: CampaignCardProps) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    (window.location.href = `/campaigns/${campaign.id}/edit`)
+                  }
+                >
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Campaign
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={async () => {
+                    try {
+                      const newStatus =
+                        campaign.status === "active" ? "draft" : "active";
+                      await updateCampaign(campaign.id, { status: newStatus });
+                      toast({
+                        title: "Campaign updated",
+                        description: `Campaign ${newStatus === "active" ? "activated" : "paused"} successfully`,
+                      });
+                      // Refresh the campaigns list
+                      window.location.reload();
+                    } catch (error: any) {
+                      toast({
+                        title: "Error",
+                        description:
+                          error.message || "Failed to update campaign",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                >
                   <AlertCircle className="h-4 w-4 mr-2" />
                   {campaign.status === "active"
                     ? "Pause Campaign"
                     : "Activate Campaign"}
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-destructive">
+                <DropdownMenuItem
+                  className="text-destructive"
+                  onClick={async () => {
+                    if (
+                      confirm(
+                        "Are you sure you want to delete this campaign? This action cannot be undone.",
+                      )
+                    ) {
+                      try {
+                        await deleteCampaign(campaign.id);
+                        toast({
+                          title: "Campaign deleted",
+                          description: "Campaign deleted successfully",
+                        });
+                        // Refresh the campaigns list
+                        window.location.reload();
+                      } catch (error: any) {
+                        toast({
+                          title: "Error",
+                          description:
+                            error.message || "Failed to delete campaign",
+                          variant: "destructive",
+                        });
+                      }
+                    }
+                  }}
+                >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete Campaign
                 </DropdownMenuItem>
@@ -209,60 +370,6 @@ const StatusBadge = ({ status }: StatusBadgeProps) => {
   return <Badge variant={variant as any}>{label}</Badge>;
 };
 
-// Default mock data
-const defaultCampaigns: Campaign[] = [
-  {
-    id: "1",
-    title: "Community Garden Project",
-    description:
-      "Help us build a sustainable community garden in the heart of downtown.",
-    goalAmount: 5000,
-    currentAmount: 3750,
-    status: "active",
-    createdAt: "2023-05-15T10:30:00Z",
-    imageUrl:
-      "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&q=80",
-    backers: 42,
-  },
-  {
-    id: "2",
-    title: "Local Animal Shelter Renovation",
-    description:
-      "Renovating our facilities to help more animals find their forever homes.",
-    goalAmount: 10000,
-    currentAmount: 10000,
-    status: "completed",
-    createdAt: "2023-02-10T14:20:00Z",
-    imageUrl:
-      "https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=800&q=80",
-    backers: 137,
-  },
-  {
-    id: "3",
-    title: "Tech Education for Underserved Youth",
-    description:
-      "Providing coding classes and computer equipment to underserved communities.",
-    goalAmount: 7500,
-    currentAmount: 0,
-    status: "draft",
-    createdAt: "2023-06-01T09:15:00Z",
-    imageUrl:
-      "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800&q=80",
-    backers: 0,
-  },
-  {
-    id: "4",
-    title: "Neighborhood Cleanup Initiative",
-    description:
-      "Organizing monthly cleanup events to beautify our local neighborhoods.",
-    goalAmount: 2000,
-    currentAmount: 1200,
-    status: "active",
-    createdAt: "2023-04-22T11:45:00Z",
-    imageUrl:
-      "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=800&q=80",
-    backers: 28,
-  },
-];
+// Fetch campaigns from the database in the component
 
 export default CampaignsTab;

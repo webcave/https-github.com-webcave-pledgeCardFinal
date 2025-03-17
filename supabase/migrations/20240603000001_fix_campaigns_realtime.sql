@@ -1,0 +1,3 @@
+-- This migration is a no-op to fix the previous error
+-- The campaigns table is already a member of the supabase_realtime publication
+-- so we don't need to add it again

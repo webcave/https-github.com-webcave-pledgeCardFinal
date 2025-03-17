@@ -37,7 +37,7 @@ const CampaignDetail = ({
   category = "Community",
   organizerName = "Sarah Johnson",
   organizerAvatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=sarah",
-  organizerLocation = "Portland, OR",
+  organizerLocation = "Kampala, UG",
   campaignCreatedDate = "March 15, 2023",
   story = "<p>This campaign was started to help fund a new community garden in our neighborhood. The garden will provide fresh produce for local families and serve as an educational space for children to learn about sustainable agriculture.</p><p>We need your support to purchase gardening tools, seeds, soil, and irrigation equipment. We also plan to build accessible pathways and seating areas so everyone in the community can enjoy the space.</p><p>With your help, we can transform an empty lot into a thriving green space that brings people together and improves our local environment. Every donation, no matter how small, brings us closer to our goal!</p><p>Thank you for your support and for being part of our community garden journey!</p>",
   media = [

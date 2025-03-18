@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import CampaignCreationForm from "./CampaignCreationForm";
-import { getCampaignById, updateCampaign } from "@/lib/api/campaigns";
-import { useAuth } from "@/contexts/AuthContext";
-import Navbar from "../layout/Navbar";
+import { getCampaignById, updateCampaign } from "@/lib/api/dummyApi";
+import { useAuth } from "@/contexts/DummyAuthContext";
+import PageLayout from "../layout/PageLayout";
 
 const CampaignEditWrapper = () => {
   const { id } = useParams<{ id: string }>();
@@ -113,23 +113,27 @@ const CampaignEditWrapper = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
+      <PageLayout>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </PageLayout>
     );
   }
 
   if (!campaign) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold">Campaign not found</h2>
-          <p className="mt-2 text-muted-foreground">
-            The campaign you're looking for doesn't exist or you don't have
-            permission to edit it.
-          </p>
+      <PageLayout>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold">Campaign not found</h2>
+            <p className="mt-2 text-muted-foreground">
+              The campaign you're looking for doesn't exist or you don't have
+              permission to edit it.
+            </p>
+          </div>
         </div>
-      </div>
+      </PageLayout>
     );
   }
 
@@ -147,8 +151,7 @@ const CampaignEditWrapper = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
+    <PageLayout>
       <div className="container mx-auto py-8 px-4">
         <CampaignCreationForm
           initialData={initialData}
@@ -157,7 +160,7 @@ const CampaignEditWrapper = () => {
           isSubmitting={isSubmitting}
         />
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

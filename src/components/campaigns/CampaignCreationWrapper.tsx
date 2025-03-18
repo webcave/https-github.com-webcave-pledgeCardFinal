@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import CampaignCreationForm from "./CampaignCreationForm";
-import { createCampaign, addCampaignMedia } from "@/lib/api/campaigns";
-import { uploadFile } from "@/lib/api/storage";
-import { useAuth } from "@/contexts/AuthContext";
-import Navbar from "../layout/Navbar";
+import { createCampaign, addCampaignMedia } from "@/lib/api/dummyApi";
+import { uploadFile } from "@/lib/api/dummyApi";
+import { useAuth } from "@/contexts/DummyAuthContext";
+import PageLayout from "../layout/PageLayout";
 
 const CampaignCreationWrapper = () => {
   const navigate = useNavigate();
@@ -98,15 +98,14 @@ const CampaignCreationWrapper = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar />
+    <PageLayout>
       <div className="container mx-auto py-8 px-4">
         <CampaignCreationForm
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
         />
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

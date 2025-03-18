@@ -6,10 +6,9 @@ import {
   getCampaigns,
   searchCampaigns,
   getCampaignsByCategory,
-} from "@/lib/api/campaigns";
-import { getPublicUrl } from "@/lib/api/storage";
+} from "@/lib/api/dummyApi";
+import { getPublicUrl } from "@/lib/api/dummyApi";
 import { differenceInDays } from "date-fns";
-import { supabase } from "@/lib/supabase";
 
 interface Campaign {
   id: string;

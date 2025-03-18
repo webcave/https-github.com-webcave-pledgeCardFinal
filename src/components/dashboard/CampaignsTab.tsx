@@ -1,12 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import {
-  getUserCampaigns,
-  deleteCampaign,
-  updateCampaign,
-} from "@/lib/api/campaigns";
-import { getPublicUrl } from "@/lib/api/storage";
-import { supabase } from "@/lib/supabase";
+import React, { useState } from "react";
+import { useAuth } from "@/contexts/DummyAuthContext";
 import { toast } from "@/components/ui/use-toast";
 import {
   Card,
@@ -437,7 +430,5 @@ const StatusBadge = ({ status }: StatusBadgeProps) => {
 
   return <Badge variant={variant as any}>{label}</Badge>;
 };
-
-// Fetch campaigns from the database in the component
 
 export default CampaignsTab;

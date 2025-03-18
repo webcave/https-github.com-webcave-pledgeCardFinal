@@ -1,14 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import Navbar from "../layout/Navbar";
+import PageLayout from "../layout/PageLayout";
 import { Button } from "@/components/ui/button";
 
 const AboutPage = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar />
-
+    <PageLayout>
       {/* Hero Section */}
       <section className="w-full bg-gradient-to-r from-primary/90 to-primary py-16 px-4">
         <div className="max-w-7xl mx-auto">
@@ -188,7 +186,7 @@ const AboutPage = () => {
           </div>
         </div>
       </section>
-    </div>
+    </PageLayout>
   );
 };
 

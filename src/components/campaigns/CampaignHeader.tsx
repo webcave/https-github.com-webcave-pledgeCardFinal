@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Share2, Heart, Calendar } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import DonationForm from "../donations/DonationForm";
+import PledgeForm from "../pledges/PledgeForm";
 
 interface CampaignHeaderProps {
   title?: string;
@@ -11,6 +15,7 @@ interface CampaignHeaderProps {
   daysLeft?: number;
   backerCount?: number;
   category?: string;
+  campaignId?: string;
 }
 
 const CampaignHeader = ({
@@ -21,7 +26,12 @@ const CampaignHeader = ({
   daysLeft = 21,
   backerCount = 143,
   category = "Community",
+  campaignId = "123",
 }: CampaignHeaderProps) => {
+  const [isDonateDialogOpen, setIsDonateDialogOpen] = useState(false);
+  const [isPledgeDialogOpen, setIsPledgeDialogOpen] = useState(false);
+  const navigate = useNavigate();
+
   const progressPercentage = Math.min(
     Math.round((currentAmount / goalAmount) * 100),
     100,
@@ -80,15 +90,48 @@ const CampaignHeader = ({
             <span>{daysLeft} days left</span>
           </div>
           <div className="flex space-x-3">
-            <Button size="lg" className="font-semibold">
+            <Button
+              size="lg"
+              className="font-semibold"
+              onClick={() => setIsDonateDialogOpen(true)}
+            >
               Donate Now
             </Button>
-            <Button variant="outline" size="lg" className="font-semibold">
+            <Button
+              variant="outline"
+              size="lg"
+              className="font-semibold"
+              onClick={() => setIsPledgeDialogOpen(true)}
+            >
               Pledge
             </Button>
           </div>
         </div>
       </div>
+
+      {/* Donate Dialog */}
+      <Dialog open={isDonateDialogOpen} onOpenChange={setIsDonateDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DonationForm
+            campaignId={campaignId}
+            campaignTitle={title}
+            onDonationComplete={() => setIsDonateDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Pledge Dialog */}
+      <Dialog open={isPledgeDialogOpen} onOpenChange={setIsPledgeDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <PledgeForm
+            campaignId={campaignId}
+            campaignTitle={title}
+            onSubmit={() => setIsPledgeDialogOpen(false)}
+            onCancel={() => setIsPledgeDialogOpen(false)}
+            isOpen={true}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

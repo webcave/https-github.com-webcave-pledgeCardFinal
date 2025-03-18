@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import PageLayout from "../layout/PageLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,7 +41,7 @@ const UserDashboard = ({
   ];
 
   return (
-    <div className="w-full min-h-screen bg-gray-50">
+    <PageLayout>
       <div className="container mx-auto py-8 px-4">
         {/* User Profile Header */}
         <div className="mb-8 bg-white rounded-lg shadow-sm p-6">
@@ -202,7 +203,7 @@ const UserDashboard = ({
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

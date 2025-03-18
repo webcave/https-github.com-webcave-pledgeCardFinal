@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import CampaignDetail from "./CampaignDetail";
-import Navbar from "../layout/Navbar";
+import PageLayout from "../layout/PageLayout";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import DonationForm from "../donations/DonationForm";
 import PledgeForm from "../pledges/PledgeForm";
-import { getCampaignById } from "@/lib/api/campaigns";
-import { getPublicUrl } from "@/lib/api/storage";
+import { getCampaignById } from "@/lib/api/dummyApi";
+import { getPublicUrl } from "@/lib/api/dummyApi";
 import { format } from "date-fns";
 import { differenceInDays } from "date-fns";
 
@@ -140,22 +140,20 @@ const CampaignWrapper = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <Navbar />
+      <PageLayout>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading campaign details...</p>
           </div>
         </div>
-      </div>
+      </PageLayout>
     );
   }
 
   if (!campaign) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <Navbar />
+      <PageLayout>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-800">
@@ -166,13 +164,12 @@ const CampaignWrapper = () => {
             </p>
           </div>
         </div>
-      </div>
+      </PageLayout>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar />
+    <PageLayout>
       <CampaignDetail
         {...campaign}
         onDonateClick={handleDonateClick}
@@ -202,7 +199,7 @@ const CampaignWrapper = () => {
           />
         </DialogContent>
       </Dialog>
-    </div>
+    </PageLayout>
   );
 };
 

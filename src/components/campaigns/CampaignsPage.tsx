@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../layout/Navbar";
+import PageLayout from "../layout/PageLayout";
 import CampaignGrid from "./CampaignGrid";
 
 const CampaignsPage = () => {
@@ -15,8 +15,7 @@ const CampaignsPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar />
+    <PageLayout>
       <div className="w-full py-8 px-4 bg-white border-b">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-3xl font-bold text-gray-900">All Campaigns</h1>
@@ -28,7 +27,7 @@ const CampaignsPage = () => {
       <div className="max-w-7xl mx-auto py-8 px-4">
         <CampaignGrid onDonate={handleDonate} onPledge={handlePledge} />
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

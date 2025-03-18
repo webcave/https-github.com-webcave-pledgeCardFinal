@@ -20,9 +20,7 @@ const Logo = ({ size = "md", showText = true }: LogoProps) => {
       </div>
       {showText && (
         <div className="flex flex-col">
-          <span className="text-xl font-bold leading-tight">
-            PledgeCard Uganda
-          </span>
+          <span className="text-xl font-bold leading-tight">Pledge Card</span>
           <span className="text-xs text-muted-foreground leading-tight">
             Digital Payments Wallet
           </span>

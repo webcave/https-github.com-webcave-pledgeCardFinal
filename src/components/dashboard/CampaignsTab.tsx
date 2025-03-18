@@ -52,62 +52,142 @@ interface CampaignsTabProps {
 }
 
 const CampaignsTab = ({ campaigns = [] }: CampaignsTabProps) => {
-  const [userCampaigns, setUserCampaigns] = useState<Campaign[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // Define dummy campaigns directly
+  const dummyCampaigns: Campaign[] = [
+    {
+      id: "1",
+      title: "Help Build a School in Rural Uganda",
+      description: "Support education for 500 children in need",
+      goalAmount: 50000,
+      currentAmount: 32500,
+      status: "active",
+      createdAt: "2023-09-15T10:30:00Z",
+      imageUrl:
+        "https://images.unsplash.com/photo-1508830524289-0adcbe822b40?w=800&q=80",
+      backers: 125,
+    },
+    {
+      id: "2",
+      title: "Clean Water Initiative",
+      description: "Bringing clean water to communities in Northern Uganda",
+      goalAmount: 25000,
+      currentAmount: 25000,
+      status: "completed",
+      createdAt: "2023-07-20T14:15:00Z",
+      imageUrl:
+        "https://images.unsplash.com/photo-1581244277943-fe4a9c777189?w=800&q=80",
+      backers: 210,
+    },
+    {
+      id: "3",
+      title: "Medical Supplies for Rural Clinic",
+      description: "Help us stock essential medicines and equipment",
+      goalAmount: 15000,
+      currentAmount: 3200,
+      status: "active",
+      createdAt: "2023-10-05T09:45:00Z",
+      imageUrl:
+        "https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=800&q=80",
+      backers: 42,
+    },
+    {
+      id: "4",
+      title: "Community Garden Project",
+      description: "Creating sustainable food sources for local families",
+      goalAmount: 8000,
+      currentAmount: 1200,
+      status: "draft",
+      createdAt: "2023-10-12T16:20:00Z",
+      imageUrl:
+        "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&q=80",
+      backers: 15,
+    },
+    {
+      id: "5",
+      title: "Renewable Energy for Remote Village",
+      description: "Installing solar panels to provide electricity to 50 homes",
+      goalAmount: 35000,
+      currentAmount: 12800,
+      status: "active",
+      createdAt: "2023-11-03T08:15:00Z",
+      imageUrl:
+        "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=80",
+      backers: 78,
+    },
+    {
+      id: "6",
+      title: "Women's Entrepreneurship Program",
+      description:
+        "Providing business training and microloans to women entrepreneurs",
+      goalAmount: 20000,
+      currentAmount: 20000,
+      status: "completed",
+      createdAt: "2023-08-17T11:45:00Z",
+      imageUrl:
+        "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=800&q=80",
+      backers: 143,
+    },
+    {
+      id: "7",
+      title: "Emergency Food Relief",
+      description:
+        "Distributing food packages to families affected by recent floods",
+      goalAmount: 12000,
+      currentAmount: 11500,
+      status: "active",
+      createdAt: "2023-12-01T09:30:00Z",
+      imageUrl:
+        "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&q=80",
+      backers: 230,
+    },
+    {
+      id: "8",
+      title: "Mobile Library for Rural Schools",
+      description:
+        "Creating a mobile library to serve 10 schools in remote areas",
+      goalAmount: 18000,
+      currentAmount: 2300,
+      status: "draft",
+      createdAt: "2023-12-10T14:20:00Z",
+      imageUrl:
+        "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&q=80",
+      backers: 28,
+    },
+    {
+      id: "9",
+      title: "Youth Sports Program",
+      description:
+        "Providing sports equipment and coaching for underprivileged youth",
+      goalAmount: 10000,
+      currentAmount: 4200,
+      status: "active",
+      createdAt: "2023-11-15T16:45:00Z",
+      imageUrl:
+        "https://images.unsplash.com/photo-1526676037777-05a232554f77?w=800&q=80",
+      backers: 67,
+    },
+    {
+      id: "10",
+      title: "Mental Health Support Center",
+      description:
+        "Establishing a community center for mental health services and support",
+      goalAmount: 45000,
+      currentAmount: 5800,
+      status: "draft",
+      createdAt: "2023-12-05T10:15:00Z",
+      imageUrl:
+        "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&q=80",
+      backers: 52,
+    },
+  ];
+
+  const [userCampaigns, setUserCampaigns] =
+    useState<Campaign[]>(dummyCampaigns);
+  const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
 
-  useEffect(() => {
-    const fetchUserCampaigns = async () => {
-      if (!user) return;
-
-      setIsLoading(true);
-      try {
-        const { data, error } = await getUserCampaigns(user.id);
-
-        if (error) throw error;
-
-        if (data) {
-          // Transform the data to match our component's expected format
-          const formattedCampaigns = await Promise.all(
-            data.map(async (campaign) => {
-              // Get the cover image for this campaign
-              const { data: mediaData } = await supabase
-                .from("campaign_media")
-                .select("*")
-                .eq("campaign_id", campaign.id)
-                .eq("is_cover", true)
-                .single();
-
-              return {
-                id: campaign.id,
-                title: campaign.title,
-                description: campaign.short_description,
-                goalAmount: campaign.target_amount,
-                currentAmount: campaign.current_amount,
-                status: campaign.status,
-                createdAt: campaign.created_at,
-                imageUrl: mediaData
-                  ? getPublicUrl(mediaData.file_path)
-                  : "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&q=80",
-                backers: campaign.backer_count,
-              };
-            }),
-          );
-
-          setUserCampaigns(formattedCampaigns);
-        }
-      } catch (err) {
-        console.error("Error fetching user campaigns:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUserCampaigns();
-  }, [user]);
-
-  // Use the fetched campaigns instead of the prop
-  const displayCampaigns = userCampaigns.length > 0 ? userCampaigns : campaigns;
+  // Always use the dummy campaigns
+  const displayCampaigns = userCampaigns;
   return (
     <div className="w-full bg-white p-6 rounded-lg">
       <div className="flex justify-between items-center mb-6">
@@ -289,25 +369,20 @@ const CampaignCard = ({ campaign }: CampaignCardProps) => {
                   Edit Campaign
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={async () => {
-                    try {
-                      const newStatus =
-                        campaign.status === "active" ? "draft" : "active";
-                      await updateCampaign(campaign.id, { status: newStatus });
-                      toast({
-                        title: "Campaign updated",
-                        description: `Campaign ${newStatus === "active" ? "activated" : "paused"} successfully`,
-                      });
-                      // Refresh the campaigns list
-                      window.location.reload();
-                    } catch (error: any) {
-                      toast({
-                        title: "Error",
-                        description:
-                          error.message || "Failed to update campaign",
-                        variant: "destructive",
-                      });
-                    }
+                  onClick={() => {
+                    // Use dummy data instead of API call
+                    const newStatus =
+                      campaign.status === "active" ? "draft" : "active";
+                    toast({
+                      title: "Campaign updated",
+                      description: `Campaign ${newStatus === "active" ? "activated" : "paused"} successfully`,
+                    });
+                    // Update the campaign status
+                    setUserCampaigns((prev) =>
+                      prev.map((c) =>
+                        c.id === campaign.id ? { ...c, status: newStatus } : c,
+                      ),
+                    );
                   }}
                 >
                   <AlertCircle className="h-4 w-4 mr-2" />
@@ -317,28 +392,21 @@ const CampaignCard = ({ campaign }: CampaignCardProps) => {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="text-destructive"
-                  onClick={async () => {
+                  onClick={() => {
                     if (
                       confirm(
                         "Are you sure you want to delete this campaign? This action cannot be undone.",
                       )
                     ) {
-                      try {
-                        await deleteCampaign(campaign.id);
-                        toast({
-                          title: "Campaign deleted",
-                          description: "Campaign deleted successfully",
-                        });
-                        // Refresh the campaigns list
-                        window.location.reload();
-                      } catch (error: any) {
-                        toast({
-                          title: "Error",
-                          description:
-                            error.message || "Failed to delete campaign",
-                          variant: "destructive",
-                        });
-                      }
+                      // Use dummy data instead of API call
+                      toast({
+                        title: "Campaign deleted",
+                        description: "Campaign deleted successfully",
+                      });
+                      // Remove campaign from state
+                      setUserCampaigns((prev) =>
+                        prev.filter((c) => c.id !== campaign.id),
+                      );
                     }
                   }}
                 >

@@ -41,11 +41,9 @@ const Navbar = ({
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-full bg-[#623895] flex items-center justify-center">
-            <span className="text-white font-bold">GF</span>
+            <span className="text-white font-bold">PC</span>
           </div>
-          <span className="text-xl font-bold hidden md:block">
-            GoFundMe Clone
-          </span>
+          <span className="text-xl font-bold hidden md:block">Pledge Card</span>
         </Link>
 
         {/* Search Bar */}

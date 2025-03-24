@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Save, Trash2, Eye } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -74,6 +74,73 @@ interface CampaignCreationFormProps {
   isSubmitting?: boolean;
 }
 
+// Confetti component for success animation
+const Confetti = ({ isActive }) => {
+  const [particles, setParticles] = useState([]);
+
+  useEffect(() => {
+    if (!isActive) return;
+
+    // Generate confetti particles
+    const newParticles = [];
+    const colors = [
+      "#FFC700",
+      "#FF0000",
+      "#2E3191",
+      "#41D3BD",
+      "#FB5607",
+      "#FFBE0B",
+    ];
+
+    for (let i = 0; i < 100; i++) {
+      newParticles.push({
+        id: i,
+        x: Math.random() * 100,
+        y: -20 - Math.random() * 100,
+        size: 5 + Math.random() * 10,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rotation: Math.random() * 360,
+        speed: 3 + Math.random() * 7,
+      });
+    }
+
+    setParticles(newParticles);
+
+    // Clean up
+    return () => setParticles([]);
+  }, [isActive]);
+
+  if (!isActive) return null;
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-50">
+      {particles.map((particle) => (
+        <motion.div
+          key={particle.id}
+          className="absolute rounded-full"
+          style={{
+            backgroundColor: particle.color,
+            width: particle.size,
+            height: particle.size,
+            x: `${particle.x}vw`,
+            y: `${particle.y}vh`,
+            rotate: particle.rotation,
+          }}
+          animate={{
+            y: ["100vh"],
+            x: [`${particle.x + (Math.random() * 20 - 10)}vw`],
+            opacity: [1, 0.8, 0],
+          }}
+          transition={{
+            duration: particle.speed,
+            ease: "easeOut",
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
 const CampaignCreationForm = ({
   initialData = {},
   onSubmit = () => {},
@@ -81,6 +148,7 @@ const CampaignCreationForm = ({
   isSubmitting = false,
 }: CampaignCreationFormProps) => {
   const [step, setStep] = useState(1);
+  const [showConfetti, setShowConfetti] = useState(false);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const totalSteps = 4;
 
@@ -126,6 +194,12 @@ const CampaignCreationForm = ({
   const handleSubmit = (data: FormValues) => {
     // Pass both the form data and media files to the parent component
     onSubmit(data, mediaFiles);
+
+    // Show confetti animation on successful submission
+    if (!isEditing) {
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 5000);
+    }
   };
 
   const handlePreview = () => {
@@ -134,7 +208,8 @@ const CampaignCreationForm = ({
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-sm">
+    <div className="w-full max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-sm relative">
+      <Confetti isActive={showConfetti} />
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold mb-2">
           {isEditing ? "Edit Your Campaign" : "Create Your Campaign"}
@@ -546,17 +621,32 @@ const CampaignCreationForm = ({
                   Next <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
               ) : (
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <>
-                      <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
-                      {isEditing ? "Updating..." : "Creating..."}
-                    </>
-                  ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      {isEditing ? "Update Campaign" : "Create Campaign"}
-                    </>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`relative overflow-hidden transition-all duration-300 ${isSubmitting ? "bg-primary/80" : "bg-primary hover:bg-primary/90 hover:scale-105"}`}
+                >
+                  <span className="relative z-10 flex items-center">
+                    {isSubmitting ? (
+                      <>
+                        <div className="mr-2 h-5 w-5 animate-spin rounded-full border-3 border-white border-t-transparent"></div>
+                        <span>
+                          {isEditing
+                            ? "Launching Update..."
+                            : "Launching Campaign..."}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="mr-2 text-lg">🚀</span>
+                        <span>
+                          {isEditing ? "Launch Update" : "Launch Campaign"}
+                        </span>
+                      </>
+                    )}
+                  </span>
+                  {!isSubmitting && (
+                    <span className="absolute inset-0 h-full w-full bg-gradient-to-r from-primary/0 via-primary-foreground/10 to-primary/0 transform translate-x-[-100%] animate-shimmer"></span>
                   )}
                 </Button>
               )}

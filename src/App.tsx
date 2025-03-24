@@ -1,7 +1,6 @@
 import { Suspense, lazy } from "react";
 import { useRoutes, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./components/home";
-import routes from "tempo-routes";
 import { AuthProvider } from "./contexts/DummyAuthContext";
 import PageLayout from "./components/layout/PageLayout";
 
@@ -26,10 +25,8 @@ const LoginPage = lazy(() => import("./components/auth/LoginPage"));
 const SignupPage = lazy(() => import("./components/auth/SignupPage"));
 
 function App() {
-  // Tempo routes
-  {
-    import.meta.env.VITE_TEMPO === "true" && useRoutes(routes);
-  }
+  // Tempo routes - disabled for now to fix routing issues
+  const tempoRoutes = null;
 
   return (
     <AuthProvider>
@@ -41,17 +38,18 @@ function App() {
         }
       >
         <>
+          {tempoRoutes}
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/campaigns" element={<CampaignsPage />} />
+            <Route
+              path="/campaigns/create"
+              element={<CampaignCreationWrapper />}
+            />
             <Route path="/campaigns/:id" element={<CampaignWrapper />} />
             <Route
               path="/campaigns/:id/edit"
               element={<CampaignEditWrapper />}
-            />
-            <Route
-              path="/campaigns/create"
-              element={<CampaignCreationWrapper />}
             />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/dashboard" element={<UserDashboard />} />
@@ -69,10 +67,7 @@ function App() {
             />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
-            {/* Add this to allow Tempo to capture routes before any catchall */}
-            {import.meta.env.VITE_TEMPO === "true" && (
-              <Route path="/tempobook/*" />
-            )}
+            {/* Tempo routes disabled for now */}
             <Route
               path="*"
               element={
@@ -85,7 +80,6 @@ function App() {
               }
             />
           </Routes>
-          {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
         </>
       </Suspense>
     </AuthProvider>

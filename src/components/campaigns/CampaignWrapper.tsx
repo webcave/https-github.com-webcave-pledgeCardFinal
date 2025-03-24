@@ -5,8 +5,8 @@ import PageLayout from "../layout/PageLayout";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import DonationForm from "../donations/DonationForm";
 import PledgeForm from "../pledges/PledgeForm";
-import { getCampaignById } from "@/lib/api/dummyApi";
-import { getPublicUrl } from "@/lib/api/dummyApi";
+import { getCampaignById } from "@/lib/api/campaigns";
+import { getPublicUrl } from "@/lib/api/storage";
 import { format } from "date-fns";
 import { differenceInDays } from "date-fns";
 
@@ -143,8 +143,10 @@ const CampaignWrapper = () => {
       <PageLayout>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading campaign details...</p>
+            <div className="flex flex-col items-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-2 border-purple-600 border-t-transparent mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading campaign details...</p>
+            </div>
           </div>
         </div>
       </PageLayout>

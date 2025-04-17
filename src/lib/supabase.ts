@@ -62,7 +62,6 @@ export const supabase = supabaseClient;
 // Function to check if the database connection is working
 export async function checkDatabaseConnection(): Promise<boolean> {
   try {
-    // Try a simple query to check connection
     const { data, error } = await supabase
       .from("campaigns")
       .select("id")

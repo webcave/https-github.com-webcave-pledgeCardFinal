@@ -192,6 +192,45 @@ export type Database = {
           },
         ]
       }
+      users: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          email: string
+          id: string
+          location: string | null
+          name: string | null
+          phone: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email: string
+          id: string
+          location?: string | null
+          name?: string | null
+          phone?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          location?: string | null
+          name?: string | null
+          phone?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

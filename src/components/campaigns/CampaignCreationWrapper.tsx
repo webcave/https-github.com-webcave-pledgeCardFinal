@@ -69,9 +69,6 @@ const CampaignCreationWrapper = () => {
         organizer_bio: data.organizerBio || "",
         is_public: data.isPublic,
         status: "active",
-        // Add a default cover image to avoid null issues
-        cover_image:
-          "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=1200&q=80",
       };
 
       // Create the campaign

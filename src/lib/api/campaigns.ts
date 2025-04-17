@@ -262,10 +262,11 @@ export async function createCampaign(campaignData: TablesInsert<"campaigns">) {
       backer_count: campaignData.backer_count || 0,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      // Add a placeholder cover_image to avoid null issues
-      cover_image:
-        campaignData.cover_image ||
-        "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=1200&q=80",
+      // Make sure target_amount is a number
+      target_amount:
+        typeof campaignData.target_amount === "string"
+          ? parseFloat(campaignData.target_amount)
+          : campaignData.target_amount,
     };
 
     // Check if we should use fallback storage

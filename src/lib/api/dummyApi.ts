@@ -6,14 +6,28 @@ import {
   getImageUrl,
 } from "../dummyData";
 
+// Re-export getImageUrl for use in other components
+export { getImageUrl };
+
 // Campaign API functions
 export async function getCampaigns() {
-  return {
-    data: dummyCampaigns.filter(
+  try {
+    // Return dummy campaigns without relying on the relationship with campaign_media
+    const filteredCampaigns = dummyCampaigns.filter(
       (campaign) => campaign.is_public && campaign.status === "active",
-    ),
-    error: null,
-  };
+    );
+
+    return {
+      data: filteredCampaigns,
+      error: null,
+    };
+  } catch (error) {
+    console.error("Error in getCampaigns:", error);
+    return {
+      data: [],
+      error: { message: error.message || "Failed to fetch campaigns" },
+    };
+  }
 }
 
 export async function getCampaignById(id: string) {
@@ -59,7 +73,10 @@ export async function getUserCampaigns(userId: string) {
 }
 
 export async function createCampaign(campaignData: any) {
+  // Generate a unique ID
   const newId = (dummyCampaigns.length + 1).toString();
+
+  // Create a new campaign with default values
   const newCampaign = {
     id: newId,
     ...campaignData,
@@ -68,9 +85,31 @@ export async function createCampaign(campaignData: any) {
     current_amount: 0,
     backer_count: 0,
     media: [],
+    // Ensure these fields exist even if not provided
+    status: campaignData.status || "active",
+    is_public:
+      typeof campaignData.is_public === "boolean"
+        ? campaignData.is_public
+        : true,
+    short_description: campaignData.short_description || "",
+    story: campaignData.story || "",
+    category: campaignData.category || "Other",
+    target_amount: campaignData.target_amount || 1000,
+    end_date:
+      campaignData.end_date ||
+      new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    organizer_name: campaignData.organizer_name || "Anonymous",
   };
 
-  dummyCampaigns.push(newCampaign);
+  // Add the campaign to our dummy data
+  dummyCampaigns.unshift(newCampaign); // Add to beginning so it shows up first
+
+  // Log for debugging
+  console.log("Campaign created:", newCampaign);
+  console.log("Total campaigns:", dummyCampaigns.length);
+
+  // Simulate network delay for a more realistic experience
+  await new Promise((resolve) => setTimeout(resolve, 800));
 
   return {
     data: newCampaign,

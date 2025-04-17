@@ -14,25 +14,31 @@ export type Database = {
           campaign_id: string | null
           caption: string | null
           created_at: string | null
+          display_order: number | null
+          file_path: string
+          file_type: string
           id: string
-          type: string
-          url: string
+          is_cover: boolean | null
         }
         Insert: {
           campaign_id?: string | null
           caption?: string | null
           created_at?: string | null
+          display_order?: number | null
+          file_path: string
+          file_type: string
           id?: string
-          type: string
-          url: string
+          is_cover?: boolean | null
         }
         Update: {
           campaign_id?: string | null
           caption?: string | null
           created_at?: string | null
+          display_order?: number | null
+          file_path?: string
+          file_type?: string
           id?: string
-          type?: string
-          url?: string
+          is_cover?: boolean | null
         }
         Relationships: [
           {
@@ -46,6 +52,7 @@ export type Database = {
       }
       campaigns: {
         Row: {
+          backer_count: number
           category: string
           created_at: string | null
           current_amount: number
@@ -55,6 +62,7 @@ export type Database = {
           organizer_bio: string | null
           organizer_name: string
           short_description: string
+          status: string
           story: string
           target_amount: number
           title: string
@@ -62,6 +70,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          backer_count?: number
           category: string
           created_at?: string | null
           current_amount?: number
@@ -71,6 +80,7 @@ export type Database = {
           organizer_bio?: string | null
           organizer_name: string
           short_description: string
+          status?: string
           story: string
           target_amount: number
           title: string
@@ -78,6 +88,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          backer_count?: number
           category?: string
           created_at?: string | null
           current_amount?: number
@@ -87,11 +98,136 @@ export type Database = {
           organizer_bio?: string | null
           organizer_name?: string
           short_description?: string
+          status?: string
           story?: string
           target_amount?: number
           title?: string
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      donations: {
+        Row: {
+          amount: number
+          campaign_id: string | null
+          created_at: string | null
+          id: string
+          is_anonymous: boolean | null
+          message: string | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          campaign_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_anonymous?: boolean | null
+          message?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          campaign_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_anonymous?: boolean | null
+          message?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "donations_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pledges: {
+        Row: {
+          amount: number
+          campaign_id: string | null
+          created_at: string | null
+          id: string
+          message: string | null
+          pledge_date: string
+          reminder_frequency: string | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          campaign_id?: string | null
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          pledge_date: string
+          reminder_frequency?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          campaign_id?: string | null
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          pledge_date?: string
+          reminder_frequency?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pledges_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          email: string
+          id: string
+          location: string | null
+          name: string | null
+          phone: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email: string
+          id: string
+          location?: string | null
+          name?: string | null
+          phone?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          location?: string | null
+          name?: string | null
+          phone?: string | null
+          updated_at?: string | null
+          website?: string | null
         }
         Relationships: []
       }

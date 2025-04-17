@@ -5,8 +5,8 @@ import PageLayout from "../layout/PageLayout";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import DonationForm from "../donations/DonationForm";
 import PledgeForm from "../pledges/PledgeForm";
-import { getCampaignById } from "@/lib/api/dummyApi";
-import { getPublicUrl } from "@/lib/api/dummyApi";
+import { getCampaignById } from "@/lib/api/campaigns";
+import { getPublicUrl } from "@/lib/api/storage";
 import { format } from "date-fns";
 import { differenceInDays } from "date-fns";
 
@@ -74,6 +74,30 @@ const CampaignWrapper = () => {
         const today = new Date();
         const daysLeft = Math.max(0, differenceInDays(endDate, today));
 
+        // Get appropriate image based on category if no media is available
+        const getCategoryImage = (category) => {
+          const categoryImages = {
+            Education:
+              "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1200&q=80",
+            Health:
+              "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=1200&q=80",
+            Environment:
+              "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1200&q=80",
+            Community:
+              "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=1200&q=80",
+            Business:
+              "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=1200&q=80",
+            Technology:
+              "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80",
+            Arts: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=1200&q=80",
+          };
+
+          return (
+            categoryImages[category] ||
+            "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?w=1200&q=80"
+          );
+        };
+
         // Format the campaign data
         const formattedCampaign: CampaignData = {
           id: data.id,
@@ -81,7 +105,7 @@ const CampaignWrapper = () => {
           image:
             data.media && data.media.length > 0 && data.media[0].file_path
               ? getPublicUrl(data.media[0].file_path)
-              : "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?w=1200&q=80",
+              : getCategoryImage(data.category),
           currentAmount: data.current_amount,
           goalAmount: data.target_amount,
           daysLeft: daysLeft,
@@ -143,8 +167,10 @@ const CampaignWrapper = () => {
       <PageLayout>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading campaign details...</p>
+            <div className="flex flex-col items-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-2 border-purple-600 border-t-transparent mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading campaign details...</p>
+            </div>
           </div>
         </div>
       </PageLayout>

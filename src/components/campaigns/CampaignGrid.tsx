@@ -83,8 +83,16 @@ const CampaignGrid = ({
           throw new Error(result.error.message);
         }
 
-        // Transform the data to match our component's expected format
-        if (result.data) {
+        // If we're receiving already formatted campaigns (from CampaignsPage), use them directly
+        if (
+          result.data &&
+          result.data.length > 0 &&
+          "description" in result.data[0]
+        ) {
+          setCampaigns(result.data);
+        }
+        // Otherwise transform the data to match our component's expected format
+        else if (result.data) {
           const formattedCampaigns = result.data.map((campaign) => {
             // Find the cover image for this campaign
             const coverMedia =
